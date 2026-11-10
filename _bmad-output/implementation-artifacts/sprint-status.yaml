@@ -1,0 +1,90 @@
+# generated: 2026-11-10
+# project: poker-bot-arena
+# STATUS: epic backlog|in-progress|done ; story backlog|ready-for-dev|in-progress|review|done
+generated: 2026-11-10
+last_updated: 2026-11-10
+project: poker-bot-arena
+project_key: poker
+tracking_system: file-system
+story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+development_status:
+  # Epic 1: Foundation & Game Engine
+  epic-1: backlog
+  1-1-monorepo-scaffold-tooling: backlog
+  1-2-cards-actions-and-observation-models: backlog
+  1-3-pokerkit-engine-wrapper-handrunner: backlog
+  1-4-information-set-observation-builder: backlog
+  1-5-rng-shuffling: backlog
+  1-6-hand-evaluator-equity-calculator: backlog
+  1-7-table-session-loop-hand-history: backlog
+  epic-1-retrospective: optional
+  # Epic 2: Simulation Arena
+  epic-2: backlog
+  2-1-baseline-agents: backlog
+  2-2-headless-arena-runner-parallel: backlog
+  2-3-duplicate-deal-mode: backlog
+  2-4-metrics-reporting: backlog
+  2-5-elo-trueskill-leaderboard: backlog
+  epic-2-retrospective: optional
+  # Epic 3: Heuristic Strategy Core (Beginner–Advanced engine)
+  epic-3: backlog
+  3-1-abstract-action-space-sizing: backlog
+  3-2-preflop-range-charts: backlog
+  3-3-board-texture-hand-classification: backlog
+  3-4-postflop-value-pot-odds-logic: backlog
+  3-5-bluffing-semi-bluffing-engine: backlog
+  3-6-bet-sizing-strategy: backlog
+  3-7-heuristic-agent-assembly-benchmark: backlog
+  epic-3-retrospective: optional
+  # Epic 4: Personalities & Difficulty
+  epic-4: backlog
+  4-1-personality-schema-presets: backlog
+  4-2-personality-shaper: backlog
+  4-3-difficulty-tiers-agent-factory: backlog
+  4-4-preset-stat-band-calibration: backlog
+  4-5-tilt-emotion-state: backlog
+  4-6-humanizer-think-time-chat: backlog
+  4-7-custom-personality-builder-backend: backlog
+  epic-4-retrospective: optional
+  # Epic 5: Backend API & Real-time Tables
+  epic-5: backlog
+  5-1-persistence-layer: backlog
+  5-2-table-manager-async-game-loop: backlog
+  5-3-websocket-protocol: backlog
+  5-4-lobby-table-rest-api: backlog
+  5-5-sim-jobs-api: backlog
+  epic-5-retrospective: optional
+  # Epic 6: Frontend — Play UI
+  epic-6: backlog
+  6-1-app-shell-routing-ws-client-store: backlog
+  6-2-lobby-seat-configurator: backlog
+  6-3-poker-table-rendering: backlog
+  6-4-action-controls: backlog
+  6-5-bot-presence-chat-bubbles-think-indicator: backlog
+  6-6-hand-history-replay: backlog
+  6-7-session-stats-dashboard: backlog
+  epic-6-retrospective: optional
+  # Epic 7: GTO Strategy Core (Expert)
+  epic-7: backlog
+  7-1-generic-cfr-framework-validated-on-kuhn: backlog
+  7-2-card-abstraction-bucketing: backlog
+  7-3-nlhe-abstract-game-mccfr-trainer-heads: backlog
+  7-4-blueprint-serving-action-translation: backlog
+  7-5-6-max-blueprint-pluribus-style: backlog
+  7-6-depth-limited-real-time-search-stretch: backlog
+  7-7-expert-personality-integration: backlog
+  epic-7-retrospective: optional
+  # Epic 8: Opponent Modeling & Exploitation
+  epic-8: backlog
+  8-1-opponent-stats-tracker: backlog
+  8-2-player-type-classifier: backlog
+  8-3-bayesian-range-narrowing: backlog
+  8-4-safe-exploitation-layer: backlog
+  epic-8-retrospective: optional
+  # Epic 9: Coach & Analysis (v1.1)
+  epic-9: backlog
+  9-1-post-hand-coach: backlog
+  9-2-equity-odds-overlay: backlog
+  9-3-bot-reasoning-explainer: backlog
+  epic-9-retrospective: optional
