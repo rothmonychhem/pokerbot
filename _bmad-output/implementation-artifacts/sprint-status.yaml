@@ -2,7 +2,7 @@
 # project: poker-bot-arena
 # STATUS: epic backlog|in-progress|done ; story backlog|ready-for-dev|in-progress|review|done
 generated: 2026-11-10
-last_updated: 2026-11-10
+last_updated: 2026-11-11
 project: poker-bot-arena
 project_key: poker
 tracking_system: file-system
@@ -10,18 +10,18 @@ story_location: "{project-root}/_bmad-output/implementation-artifacts"
 
 development_status:
   # Epic 1: Foundation & Game Engine
-  epic-1: backlog
-  1-1-monorepo-scaffold-tooling: backlog
-  1-2-cards-actions-and-observation-models: backlog
-  1-3-pokerkit-engine-wrapper-handrunner: backlog
-  1-4-information-set-observation-builder: backlog
-  1-5-rng-shuffling: backlog
-  1-6-hand-evaluator-equity-calculator: backlog
-  1-7-table-session-loop-hand-history: backlog
-  epic-1-retrospective: optional
+  epic-1: done
+  1-1-monorepo-scaffold-tooling: done
+  1-2-cards-actions-and-observation-models: done
+  1-3-pokerkit-engine-wrapper-handrunner: done
+  1-4-information-set-observation-builder: done
+  1-5-rng-shuffling: done
+  1-6-hand-evaluator-equity-calculator: done
+  1-7-table-session-loop-hand-history: done
+  epic-1-retrospective: done
   # Epic 2: Simulation Arena
-  epic-2: backlog
-  2-1-baseline-agents: backlog
+  epic-2: in-progress
+  2-1-baseline-agents: done
   2-2-headless-arena-runner-parallel: backlog
   2-3-duplicate-deal-mode: backlog
   2-4-metrics-reporting: backlog

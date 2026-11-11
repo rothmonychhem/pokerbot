@@ -21,6 +21,10 @@ Source docs: `prd.md`, `architecture.md`, `research.md`. MVP = Epics 1–6.
 ## Epic 1: Foundation & Game Engine
 Goal: a correct, fair, deterministic NLHE engine with hand evaluation and equity, exposing information-set observations to agents.
 
+**Delivered (2026-11-11):** All seven stories complete: typed contracts, hand/session execution, filtered observations and showdown rules, secure/seeded shuffles with private audit history, ranking/equity and JSON/generated-text exports. Final recorded backend validation: 362 tests passed, 100% source coverage.
+
+**Retrospective:** [Epic 1 — Foundation & Game Engine](../implementation-artifacts/epic-1-retro-2026-11-11.md).
+
 ### Story 1.1: Monorepo scaffold & tooling
 As a developer, I want the backend/frontend skeleton with tooling, so that every later story has a consistent base.
 **Acceptance Criteria:**

@@ -1,0 +1,61 @@
+[project]
+name = "pokerbot"
+version = "0.1.0"
+description = "Poker Bot Arena - NLHE engine, strategic bots, simulation arena and API"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pokerkit>=0.7.7,<0.8",
+    "numpy>=2.1,<3",
+    "phevaluator>=0.6,<0.7",
+    "numba>=0.67,<0.68",
+]
+
+[project.scripts]
+pokerbot = "pokerbot.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "httpx>=0.28",
+    "hypothesis>=6.120",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pre-commit>=4.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pokerbot"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "SIM", "RUF"]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+files = ["src"]
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Import from source directly: robust to macOS hiding venv .pth files (skipped by Python 3.14).
+pythonpath = ["src", "."]
+addopts = "--strict-markers -ra -m 'not slow'"
+filterwarnings = [
+    # Starlette now prefers `httpx2` for TestClient; keep httpx until that switch is approved.
+    "ignore:Using `httpx` with `starlette.testclient` is deprecated",
+]
+markers = ["slow: long-running simulation/calibration tests (deselect with -m 'not slow')"]

@@ -1,0 +1,27 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ["--allow-multiple-documents"] # pnpm 12 lockfile is multi-document YAML
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+  - repo: local
+    hooks:
+      # Use the project's pinned ruff (backend dev group) so hooks and CI agree.
+      - id: ruff-check
+        name: ruff check
+        entry: uv run --directory backend ruff check --fix
+        language: system
+        types: [python]
+        files: ^backend/
+        pass_filenames: false
+      - id: ruff-format
+        name: ruff format
+        entry: uv run --directory backend ruff format
+        language: system
+        types: [python]
+        files: ^backend/
+        pass_filenames: false
