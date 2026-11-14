@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 
 from pokerbot import __version__
+from pokerbot.api.play import create_play_router
 
 
 def create_app() -> FastAPI:
@@ -13,6 +14,7 @@ def create_app() -> FastAPI:
     def health() -> dict[str, str]:
         return {"status": "ok"}
 
+    application.include_router(create_play_router())
     return application
 
 

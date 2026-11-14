@@ -1,0 +1,10 @@
+# Independent heads-up baseline hands; each hand resets these stacks.
+agents: [random, raise]
+stacks: [100, 100]
+small_blind: 1
+big_blind: 2
+ante: 0
+seed: 42
+batch_size: 100
+output: sim-results.json
+deal_mode: standard

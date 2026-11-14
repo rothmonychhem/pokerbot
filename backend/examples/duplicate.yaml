@@ -1,0 +1,10 @@
+# --hands counts physical hands; it must be divisible by 2 for these two bots.
+agents: [random, raise]
+stacks: [100, 100]
+small_blind: 1
+big_blind: 2
+ante: 0
+seed: 42
+batch_size: 100  # complete two-hand deal groups in duplicate/control modes
+deal_mode: duplicate
+output: duplicate-results.json

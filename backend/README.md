@@ -207,5 +207,142 @@ uv run pytest tests/agents/test_baselines.py -m slow
 It seats all three reference agents on every one of 1,000 seeded hands, varies
 3–9 seats and table parameters, and verifies no agent error/fallback warnings,
 illegal-action records or chip loss. The default suite separately exercises
-policy branches and seeded multi-hand session integration. Arena parallelism,
-CLI configuration and performance reporting belong to later epic 2 stories.
+policy branches and seeded multi-hand session integration. The parallel runner is documented below; duplicate deals, detailed statistics
+and leaderboards remain later epic 2 stories.
+
+### Parallel headless simulations
+
+```bash
+uv run pokerbot sim --config examples/sim.yaml --hands 100000 --workers 8
+# Optional: --output /path/to/results.json --no-progress
+```
+
+The YAML example configures `agents: [random, raise]`, `stacks: [100, 100]`,
+blinds 1/2, ante 0, seed 42, batch size 100, and an output path. Agent names are
+`random`, `calling_station`, and `raise`. Config accepts 2–9 agents with one
+positive integer stack per seat. Unknown keys, unsafe YAML tags, invalid seeds,
+blinds, counts and names are rejected. YAML output paths resolve relative to the
+config directory; `--output` resolves relative to the current directory. Output
+and journal paths cannot replace the source YAML, including file aliases.
+
+In explicit `standard` mode, each hand is independent: starting stacks reset,
+and the button rotates by hand
+index. This runner does not eliminate busted players or carry bankrolls forward;
+use `TableSession` when that behavior is needed. It uses a spawn-based process
+pool with at most one in-flight batch per configured worker. Logical worker IDs
+are assigned by batch index modulo worker count, independently of actual process
+scheduling. Hand `i` uses deck seed `base_seed + i * workers + worker_id`, and
+seat `s` uses baseline decision seed `deck_seed * (seat_count + 1) + s + 1`.
+Agents are recreated per hand. Equal config, hand count, worker count, batch size
+and locked environment reproduce the same hand records; changing worker count
+or batch size can change records. Elapsed time is runtime metadata, not part of
+deterministic replay.
+
+The parent shows a progress bar on stderr. Completed batches append to
+`<output>.jsonl`, flushed and fsynced per batch. Final JSON is written through a
+same-directory temporary file and atomic replacement, with schema version,
+config, requested/completed counts, worker count, run status/error, elapsed time
+and hand records sorted by hand index. Records contain index, logical worker,
+deck seed, button, payouts, final stacks, board, deck commitment and illegal-action
+count. They contain no hole cards or full private deck/history. Per-seat statistics,
+duplicate deals and leaderboard persistence remain later stories.
+
+Ctrl-C requests a graceful stop rather than interrupting a journal commit. The
+parent stops scheduling, cancels unstarted work, drains active batches and writes
+an `interrupted` result; CLI exit code is 130. A second Ctrl-C keeps requesting the
+same graceful stop. Stop latency depends on the configured batch size and hand
+duration. Worker errors produce saved `failed` results and exit 1; successful runs
+exit 0, bad configuration exits 2. Output IO failures surface as errors, with the
+last successfully flushed journal available when possible. An unfinished or failed
+batch is not counted; partial hand indices can have gaps. This is batch-level
+recovery, not automatic resume. Repeating a run replaces that output and journal;
+choose distinct paths to preserve previous runs. Retain the original config and
+CLI settings alongside a journal for recovery. No durability promise is made for
+force-killing the process or machine failure before a flush.
+
+Run the end-to-end benchmark with:
+
+```bash
+PYTHONPATH=src uv run python scripts/benchmark_arena.py --hands 50000 --workers 8
+```
+
+Recorded on macOS 26.6.2 arm64, Python 3.14.6, a machine exposing 10 CPU cores:
+eight workers, random versus raise, 100 chips per seat, blinds 1/2, seed 42 and
+batch size 100 completed 50,000 hands in 19.251s (**2,597 hands/s**).
+The real 100,000-hand CLI invocation took 38.66s (**2,587 hands/s**) including
+command startup, engine work, IPC, journal flushes, final JSON and shutdown.
+The shorter 10,000-hand benchmark measured 1,796 hands/s; process startup is not
+amortized as well. These are workload-specific measurements, not a guarantee for
+all seat counts or policies. Progress display was disabled for these measurements.
+The runner's `elapsed_seconds` is captured before final JSON serialization;
+use the benchmark's external timer for end-to-end throughput.
+
+### Duplicate deals and matched variance comparison
+
+```bash
+# Replay every deck through all cyclic bot-seat rotations.
+uv run pokerbot sim --config examples/duplicate.yaml --hands 10000 --workers 4
+# Or override a standard config with --duplicate.
+
+# Compare equal-cost duplicate and independent-rotation experiments.
+uv run pokerbot sim --config examples/duplicate.yaml --hands 10000 --workers 4 \
+  --compare --output comparison.json
+```
+
+`deal_mode` is `duplicate` (default), `standard`, or `independent_rotations`.
+The earlier `examples/sim.yaml` and independent-hand benchmark explicitly select
+`standard` to preserve that experiment.
+Duplicate mode shuffles one deck per deal group, then replays that same deck for
+every cyclic assignment of bots to seats. A group's button and seat stacks stay
+fixed. Bot identities are their configured list indices, so two `calling_station`
+entries remain two distinct bots. Each bot occupies every seat exactly once.
+Policies reset for every rotation; a bot's policy seed stays fixed within a group.
+Outputs keep seat payouts and add `deal_index`, `rotation`, `bot_at_seat`,
+`bot_payouts` and per-bot `agent_seeds`. Summary totals and rates use bot identity.
+
+`--hands` always counts physical engine hands. Grouped modes require it to be
+divisible by the number of bots, before creating any output. In these modes
+`batch_size` counts whole deal groups, and progress counts physical hands.
+Workers and interruption handling never split a group into saved partial rotations.
+Every hand still starts with the configured seat stacks; this is independent-hand
+research, not a bankroll-carrying session.
+
+For grouped modes with n bots, group g uses
+`group_seed = base_seed + g * workers + worker_id`. Duplicate deck seed is
+`group_seed * n`; the independent-rotation control uses `group_seed * n + rotation`.
+Both profiles use bot seed `group_seed * (n + 1) + bot_index + 1` and button `g % n`.
+Seat s holds bot `(s + rotation) % n`. Thus the control preserves positions, stacks,
+button and policy seeds while using a fresh deck for each rotation; its first
+rotation shares the duplicate group's deck. Standard-mode seed behavior stays
+as documented above. Changing worker/batch layout can change the generated deals.
+
+`--compare` runs duplicate first and then the independent-rotation control with
+the same requested physical hand count, regardless of the config's initial mode.
+For `comparison.json` it writes `comparison.duplicate.json` and
+`comparison.independent.json`, their `.jsonl` journals, and the atomic comparison
+report. The combined progress total is twice `--hands`. On a failed/interrupted
+first profile, the second does not start. Partial reports retain observed counts
+and measurements, and do not report a matched ratio unless both profiles complete.
+Derived artifact paths are also checked against the source config before work.
+As with standard runs, use distinct output paths to retain previous experiments.
+
+The variance field has a precise analysis unit: for each complete n-hand block,
+take `100 * sum(bot_payouts) / (n * big_blind)`, then compute sample standard
+deviation across those block samples with ddof=1. Values are expressed in bb/100.
+They are **not** the standard deviation of literal 100-hand sessions, a confidence
+interval, or a guarantee that duplicate play lowers variance for every policy.
+Fewer than two complete blocks yields `null`, not a fabricated zero; excluded
+partial hands are disclosed. Zero control deviation makes a ratio undefined.
+Standard-mode summaries use n independent hands per analysis block as well.
+If arbitrary-size integer payouts exceed floating-point metric range, integer
+totals remain intact and rates/deviations are `null`, with an unavailable reason
+in the summary. Numerically unrepresentable comparison ratios are also `null`.
+
+A recorded real CLI comparison used random versus raise, stacks 100/100,
+blinds 1/2, seed 42, four workers and 100 deal groups per batch. Each profile
+completed 10,000 physical hands (5,000 two-hand blocks). Both bots' observed
+block-rate standard deviation was **1,619.761 bb/100** in duplicate mode versus
+**2,208.530 bb/100** in the control, ratio **0.733**. This experiment showed lower
+observed variability; other lineups can differ. Separate exact-equality tests
+verify zero net chips per bot for identical deterministic policies over complete
+duplicate groups, including unequal seat stacks.

@@ -22,8 +22,8 @@ development_status:
   # Epic 2: Simulation Arena
   epic-2: in-progress
   2-1-baseline-agents: done
-  2-2-headless-arena-runner-parallel: backlog
-  2-3-duplicate-deal-mode: backlog
+  2-2-headless-arena-runner-parallel: done
+  2-3-duplicate-deal-mode: done
   2-4-metrics-reporting: backlog
   2-5-elo-trueskill-leaderboard: backlog
   epic-2-retrospective: optional
